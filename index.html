@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D scientific · table below · by Mark Joseph</title>
+  <style>
+  * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #101c2c 0%, #263b4a 100%);
+      display: flex;
+      flex-direction: column;      /* stack: name, calculator, table */
+      justify-content: center;
+      align-items: center;
+      perspective: 1400px;
+      padding: 20px;
+    }
+
+    /* ---- my name plate (Mark Joseph Patrocinio) ---- */
+    .designer-name {
+      width: fit-content;
+      background: #1f313eb0;
+      backdrop-filter: blur(4px);
+      padding: 18px 40px;
+      border-radius: 60px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 25px -10px black, 0 0 0 2px #7da2c0 inset;
+      transform: rotateX(1deg) translateZ(10px);
+      border: 1px solid #bcd8f0;
+      /* responsive touch: allow text wrap and scaling */
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .designer-name h1 {
+      font-size: 2.3rem;
+      font-weight: 550;
+      color: #eaf7ff;
+      text-shadow: 0 4px 0 #0e2c3a, 0 8px 12px rgba(0,0,0,0.6);
+      letter-spacing: 3px;
+      word-spacing: 8px;
+      /* responsive text */
+      word-break: break-word;
+    }
+
+    /* ----- 3D calculator (unchanged, exactly from previous) ----- */
+    .calculator-3d {
+      width: 400px;
+      background: #2c4050;
+      border-radius: 48px;
+      padding: 24px 22px 30px 22px;
+      box-shadow:
+        0 40px 35px -12px rgba(0,0,0,0.7),
+        0 0 0 2px #6889a2 inset,
+        0 -8px 0 3px #1f313d inset,
+        10px 16px 24px rgba(0,0,0,0.6);
+      transform: rotateX(2deg) rotateY(-2deg) translateZ(18px);
+      transition: transform 0.2s ease;
+      backdrop-filter: blur(1px);
+      margin-bottom: 40px;         /* space before table */
+    }
+
+    /* RESPONSIVE ADDITION: make calculator shrink on small screens but keep all styles */
+    @media (max-width: 520px) {
+      .calculator-3d {
+        width: 92%;
+        max-width: 400px;
+        padding: 18px 15px 24px 15px;
+      }
+      .button-grid {
+        gap: 8px 8px;
+      }
+      .btn {
+        padding: 12px 0;
+        font-size: 18px;
+      }
+      .btn-fn {
+        font-size: 16px;
+      }
+      .btn-equal {
+        font-size: 24px;
+      }
+      .btn-dot {
+        font-size: 28px;
+      }
+      .display .result {
+        font-size: 38px;
+      }
+      .display .expression {
+        font-size: 16px;
+      }
+      .designer-name h1 {
+        font-size: 1.6rem;
+        letter-spacing: 1px;
+      }
+      .designer-name {
+        padding: 12px 20px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .button-grid {
+        gap: 6px 6px;
+      }
+      .btn {
+        font-size: 16px;
+        padding: 10px 0;
+      }
+      .btn-fn {
+        font-size: 14px;
+      }
+      .btn-equal {
+        font-size: 22px;
+      }
+      .display .result {
+        font-size: 32px;
+      }
+    }
+
+    .calculator-3d:hover {
+      transform: rotateX(1deg) rotateY(-3deg) translateZ(32px);
+    }
+
+    .display {
+      background: #c4dbe6;
+      border-radius: 28px;
+      padding: 18px 22px;
+      margin-bottom: 28px;
+      box-shadow:
+        0 0 0 2px #ecf9ff,
+        0 9px 0 0 #1e313c,
+        0 12px 14px rgba(0,0,0,0.4);
+      text-align: right;
+      color: #0c1f2b;
+      border: 1px solid #c0e0f0;
+      min-height: 94px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .display .expression {
+      font-size: 18px;
+      color: #1b4050;
+      min-height: 26px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1.2px;
+      opacity: 0.9;
+      word-break: break-word;
+    }
+
+    .display .result {
+      font-size: 48px;
+      line-height: 1.1;
+      font-weight: 550;
+      text-shadow: 0 2px 3px white;
+      word-break: break-word;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px 12px;
+    }
+
+    .btn {
+      background: #34566b;
+      border: none;
+      border-radius: 20px;
+      padding: 16px 0;
+      font-size: 22px;
+      font-weight: 500;
+      color: #f2fcff;
+      box-shadow:
+        0 0 0 2px #a7ccdf,
+        0 7px 0 0 #1f313e,
+        0 9px 12px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: all 0.07s ease;
+      text-align: center;
+      line-height: 1;
+      background-image: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.2) 4%, transparent 35%);
+      transform: translateY(0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform;
+    }
+
+    .btn:active {
+      transform: translateY(5px);
+      box-shadow:
+        0 0 0 2px #a7ccdf,
+        0 2px 0 0 #1f313e,
+        0 5px 10px rgba(0,0,0,0.5);
+    }
+
+    .btn-fn {
+      background: #3d6279;
+      box-shadow:
+        0 0 0 2px #cde3f0,
+        0 7px 0 0 #1b2e3b,
+        0 9px 12px rgba(0,0,0,0.5);
+      font-size: 20px;
+    }
+
+    .btn-oper {
+      background: #2f556b;
+    }
+
+    .btn-equal {
+      background: #e29e67;
+      box-shadow:
+        0 0 0 2px #ffeec0,
+        0 7px 0 0 #7a4d28,
+        0 9px 12px rgba(0,0,0,0.5);
+      color: #231a0f;
+      font-weight: 650;
+      font-size: 28px;
+    }
+
+    .btn-equal:active {
+      box-shadow:
+        0 0 0 2px #ffeec0,
+        0 2px 0 0 #7a4d28,
+        0 5px 10px rgba(0,0,0,0.5);
+    }
+
+    .btn-clear {
+      background: #a35d47;
+      box-shadow:
+        0 0 0 2px #f7cfb0,
+        0 7px 0 0 #583727,
+        0 9px 12px rgba(0,0,0,0.5);
+    }
+
+    .btn sup, .btn sub { font-size: 0.7rem; }
+    .btn-dot { font-size: 32px; }
+
+    /* ----- function table (now below calculator, same design) ----- */
+    .function-table {
+      max-width: 1200px;
+      width: 100%;
+      background: #1f313eb0;
+      backdrop-filter: blur(6px);
+      border-radius: 32px;
+      padding: 20px 20px 10px 20px;
+      box-shadow: 0 20px 30px -10px black, 0 0 0 2px #6f93ae inset;
+    }
+
+    .function-table h2 {
+      color: #edf8ff;
+      text-shadow: 0 3px 0 #12303f;
+      margin-left: 8px;
+      margin-bottom: 16px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      font-size: 1.8rem;
+    }
+
+    /* RESPONSIVE TABLE: make table scroll horizontally on small screens */
+    .table-responsive-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 24px;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #d7e9f3;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 8px 0 #1f333f, 0 14px 20px rgba(0,0,0,0.5);
+      font-size: 0.95rem;
+      min-width: 700px;  /* ensures readability, but wrapper handles scrolling */
+    }
+
+    th {
+      background: #2b4a5e;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+      padding: 15px 6px;
+      border-bottom: 3px solid #aad0e6;
+      text-shadow: 0 2px 0 #10313e;
+    }
+
+    td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #b2cfdf;
+      color: #03212b;
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    td:first-child {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      background: #eaf4fa;
+      text-align: center;
+    }
+
+    td:nth-child(2) {
+      font-weight: 600;
+      background: #f5faff;
+    }
+
+    td:nth-child(3) {
+      font-style: italic;
+      background: #ddeef9;
+    }
+
+    td:nth-child(4) {
+      max-width: 260px;
+    }
+
+    td:nth-child(5), td:nth-child(6) {
+      font-family: 'Courier New', monospace;
+      background: #e2f0f8;
+    }
+
+    /* mobile table slight font adjust */
+    @media (max-width: 600px) {
+      .function-table h2 {
+        font-size: 1.5rem;
+      }
+      .function-table {
+        padding: 15px 12px;
+      }
+      th, td {
+        padding: 8px 5px;
+        font-size: 0.8rem;
+      }
+      th {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAME right above the calculator -->
+  <div class="designer-name">
+    <h1>Mark Joseph Patrocinio <br> Kim L. Caga</h1>
+  </div>
+
+  <!-- 3D Calculator (exactly as before) -->
+  <div class="calculator-3d">
+    <div class="display" id="display">
+      <div class="expression" id="expression">0</div>
+      <div class="result" id="result">0</div>
+    </div>
+
+    <div class="button-grid">
+      <!-- row1: sin cos tan log ln -->
+      <button class="btn btn-fn" data-action="sin">sin</button>
+      <button class="btn btn-fn" data-action="cos">cos</button>
+      <button class="btn btn-fn" data-action="tan">tan</button>
+      <button class="btn btn-fn" data-action="log">log</button>
+      <button class="btn btn-fn" data-action="ln">ln</button>
+
+      <!-- row2: sin⁻¹ cos⁻¹ tan⁻¹ π e -->
+      <button class="btn btn-fn" data-action="asin"><span>sin⁻¹</span></button>
+      <button class="btn btn-fn" data-action="acos"><span>cos⁻¹</span></button>
+      <button class="btn btn-fn" data-action="atan"><span>tan⁻¹</span></button>
+      <button class="btn btn-fn" data-action="pi">π</button>
+      <button class="btn btn-fn" data-action="e">e</button>
+
+      <!-- row3: ( ) x^y √ e^x -->
+      <button class="btn btn-fn" data-action="(">(</button>
+      <button class="btn btn-fn" data-action=")">)</button>
+      <button class="btn btn-fn" data-action="pow"><span>x<sup>y</sup></span></button>
+      <button class="btn btn-fn" data-action="sqrt"><span>√</span></button>
+      <button class="btn btn-fn" data-action="exp"><span>e<sup>x</sup></span></button>
+
+      <!-- row4: C  ⌫  /  ×  .   (dot placed here) -->
+      <button class="btn btn-clear" data-action="clear">C</button>
+      <button class="btn btn-oper" data-action="backspace">⌫</button>
+      <button class="btn btn-oper" data-action="/">/</button>
+      <button class="btn btn-oper" data-action="*">×</button>
+      <p></p>
+
+      <!-- row5: 7 8 9 - x! -->
+      <button class="btn" data-action="7">7</button>
+      <button class="btn" data-action="8">8</button>
+      <button class="btn" data-action="9">9</button>
+      <button class="btn btn-oper" data-action="-">-</button>
+      <button class="btn btn-fn" data-action="factorial">x!</button>
+
+      <!-- row6: 4 5 6 + e -->
+      <button class="btn" data-action="4">4</button>
+      <button class="btn" data-action="5">5</button>
+      <button class="btn" data-action="6">6</button>
+      <button class="btn btn-oper" data-action="+">+</button>
+     <button class="btn btn-dot" data-action=".">.</button>
+
+      <!-- row7: 1 2 3 0 = -->
+      <button class="btn" data-action="1">1</button>
+      <button class="btn" data-action="2">2</button>
+      <button class="btn" data-action="3">3</button>
+      <button class="btn" data-action="0">0</button>
+      <button class="btn btn-equal" data-action="equals">=</button>
+    </div>
+  </div>
+
+  <!-- FUNCTION TABLE now BELOW the calculator (responsive wrapper added) -->
+  <div class="function-table">
+    <h2>🔢 function reference</h2>
+    <div class="table-responsive-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th> <th>Button / Function</th> <th>Category</th> <th>Description</th> <th>Example Input</th> <th>Example Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>0</td><td>Number</td><td>Inputs the number zero</td><td>0</td><td>0</td></tr>
+          <tr><td>2</td><td>1</td><td>Number</td><td>Inputs the number one</td><td>1</td><td>1</td></tr>
+          <tr><td>3</td><td>2</td><td>Number</td><td>Inputs the number two</td><td>2</td><td>2</td></tr>
+          <tr><td>4</td><td>3</td><td>Number</td><td>Inputs the number three</td><td>3</td><td>3</td></tr>
+          <tr><td>5</td><td>4</td><td>Number</td><td>Inputs the number four</td><td>4</td><td>4</td></tr>
+          <tr><td>6</td><td>5</td><td>Number</td><td>Inputs the number five</td><td>5</td><td>5</td></tr>
+          <tr><td>7</td><td>6</td><td>Number</td><td>Inputs the number six</td><td>6</td><td>6</td></tr>
+          <tr><td>8</td><td>7</td><td>Number</td><td>Inputs the number seven</td><td>7</td><td>7</td></tr>
+          <tr><td>9</td><td>8</td><td>Number</td><td>Inputs the number eight</td><td>8</td><td>8</td></tr>
+          <tr><td>10</td><td>9</td><td>Number</td><td>Inputs the number nine</td><td>9</td><td>9</td></tr>
+          <tr><td>11</td><td>.</td><td>Decimal</td><td>Adds decimal point for floating numbers</td><td>3.5 + 1.2</td><td>4.7</td></tr>
+          <tr><td>12</td><td>+</td><td>Arithmetic Operator</td><td>Adds two numbers</td><td>4 + 3</td><td>7</td></tr>
+          <tr><td>13</td><td>-</td><td>Arithmetic Operator</td><td>Subtracts one number from another</td><td>9 - 4</td><td>5</td></tr>
+          <tr><td>14</td><td>× (*)</td><td>Arithmetic Operator</td><td>Multiplies numbers</td><td>6 × 7</td><td>42</td></tr>
+          <tr><td>15</td><td>/</td><td>Arithmetic Operator</td><td>Divides numbers</td><td>8 / 2</td><td>4</td></tr>
+          <tr><td>16</td><td>=</td><td>Execution</td><td>Computes the final result</td><td>5 + 5 =</td><td>10</td></tr>
+          <tr><td>17</td><td>C</td><td>Control</td><td>Clears the entire display</td><td>Press C</td><td>Display resets to 0</td></tr>
+          <tr><td>18</td><td>⌫</td><td>Control</td><td>Deletes the last entered character</td><td>123 ⌫</td><td>12</td></tr>
+          <tr><td>19</td><td>(</td><td>Grouping</td><td>Opens a mathematical expression</td><td>(2 + 3)</td><td>-</td></tr>
+          <tr><td>20</td><td>)</td><td>Grouping</td><td>Closes a mathematical expression</td><td>(2 + 3) × 4</td><td>20</td></tr>
+          <tr><td>21</td><td>sin</td><td>Trigonometric</td><td>Calculates sine of an angle</td><td>sin(30)</td><td>0.5</td></tr>
+          <tr><td>22</td><td>cos</td><td>Trigonometric</td><td>Calculates cosine of an angle</td><td>cos(60)</td><td>0.5</td></tr>
+          <tr><td>23</td><td>tan</td><td>Trigonometric</td><td>Calculates tangent of an angle</td><td>tan(45)</td><td>1</td></tr>
+          <tr><td>24</td><td>sin⁻¹</td><td>Inverse Trig</td><td>Calculates arcsine</td><td>sin⁻¹(0.5)</td><td>30</td></tr>
+          <tr><td>25</td><td>cos⁻¹</td><td>Inverse Trig</td><td>Calculates arccosine</td><td>cos⁻¹(0.5)</td><td>60</td></tr>
+          <tr><td>26</td><td>tan⁻¹</td><td>Inverse Trig</td><td>Calculates arctangent</td><td>tan⁻¹(1)</td><td>45</td></tr>
+          <tr><td>27</td><td>log</td><td>Logarithmic</td><td>Calculates base-10 logarithm</td><td>log(100)</td><td>2</td></tr>
+          <tr><td>28</td><td>ln</td><td>Logarithmic</td><td>Calculates natural logarithm</td><td>ln(e)</td><td>1</td></tr>
+          <tr><td>29</td><td>√</td><td>Root Function</td><td>Calculates square root</td><td>√25</td><td>5</td></tr>
+          <tr><td>30</td><td>x^y</td><td>Exponential</td><td>Raises a number to a power</td><td>2^3</td><td>8</td></tr>
+          <tr><td>31</td><td>e^x</td><td>Exponential</td><td>Raises Euler’s number to a power</td><td>e²</td><td>7.389</td></tr>
+          <tr><td>32</td><td>π</td><td>Mathematical Constant</td><td>Inserts the value of pi</td><td>π × 2</td><td>6.283</td></tr>
+          <tr><td>33</td><td>e</td><td>Mathematical Constant</td><td>Inserts Euler’s number</td><td>ln(e)</td><td>1</td></tr>
+          <tr><td>34</td><td>x!</td><td>Factorial</td><td>Calculates factorial of a number</td><td>5!</td><td>120</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- JavaScript (identical to working version) -->
+<script>
+ // ==============================================
+// IMMEDIATELY INVOKED FUNCTION EXPRESSION (IIFE)
+// ==============================================
+(function() {
+
+  // ==============================================
+  // STATE VARIABLES
+  // ==============================================
+  let currentInput = '';
+  let lastResult = 0;
+  
+  const displayExpr = document.getElementById('expression');
+  const displayRes = document.getElementById('result');
+
+  // ==============================================
+  // DISPLAY UPDATE FUNCTION
+  // ==============================================
+  function refreshDisplay() {
+    displayExpr.innerText = currentInput || '0';
+    
+    if (lastResult !== undefined && lastResult !== '' && !isNaN(lastResult) && lastResult !== 'Error') {
+      let val = lastResult;
+      if (typeof lastResult === 'number') {
+        val = parseFloat(lastResult.toFixed(12)).toString();
+      }
+      displayRes.innerText = val;
+    } else if (lastResult === 'Error') {
+      displayRes.innerText = 'Error';
+    } else {
+      displayRes.innerText = currentInput || '0';
+    }
+  }
+
+  // ==============================================
+  // FACTORIAL FUNCTION
+  // ==============================================
+  window.factorial = function(n) {
+    if (n < 0) return NaN;
+    if (n === 0 || n === 1) return 1;
+    let res = 1;
+    for (let i = 2; i <= n; i++) res *= i;
+    return res;
+  };
+
+  // ==============================================
+  // EXPRESSION EVALUATOR (WITH IMPLICIT MULTIPLICATION FIX)
+  // ==============================================
+  function evaluateExpression(expr) {
+    if (expr.trim() === '') return 0;
+    
+    // STEP 1: Replace visual symbols with JavaScript operators
+    let parsed = expr
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/π/g, 'Math.PI')
+      .replace(/(?<![a-zA-Z])e(?![0-9a-zA-Z])/g, 'Math.E');
+    
+    // ==============================================
+    // NEW: HANDLE IMPLICIT MULTIPLICATION
+    // Fixes: (8)(9) → (8)*(9) = 72
+    // ==============================================
+    
+    // Case 1: )(  e.g., (8)(9) → (8)*(9)
+    parsed = parsed.replace(/\)\(/g, ')*(');
+    
+    // Case 2: number(  e.g., 2(3) → 2*(3)
+    parsed = parsed.replace(/(\d+)\s*\(/g, '$1*(');
+    
+    // Case 3: )( with spaces  e.g., (8) (9) → (8)*(9)
+    parsed = parsed.replace(/\)\s*\(/g, ')*(');
+    
+    // Case 4: )number  e.g., (8)9 → (8)*9
+    parsed = parsed.replace(/\)\s*(\d+)/g, ')*$1');
+    
+    // STEP 2: Handle factorial (e.g., 5! → factorial(5))
+    parsed = parsed.replace(/(\d+\.?\d*|\)|Math\.PI|Math\.E)\s*\!/g, 'factorial($1)');
+    
+    // STEP 3: Convert inverse trigonometric functions
+    parsed = parsed.replace(/sin⁻¹/g, 'asin')
+      .replace(/cos⁻¹/g, 'acos')
+      .replace(/tan⁻¹/g, 'atan');
+    
+    // STEP 4: Convert functions to JavaScript Math methods
+    parsed = parsed.replace(/\bsin\b/g, 'Math.sin')
+      .replace(/\bcos\b/g, 'Math.cos')
+      .replace(/\btan\b/g, 'Math.tan')
+      .replace(/\basin\b/g, 'Math.asin')
+      .replace(/\bacos\b/g, 'Math.acos')
+      .replace(/\batan\b/g, 'Math.atan')
+      .replace(/\blog\(/g, 'Math.log10(')
+      .replace(/\bln\(/g, 'Math.log(')
+      .replace(/√\(/g, 'Math.sqrt(')
+      .replace(/\bexp\(/g, 'Math.exp(');
+    
+    // STEP 5: Handle exponentiation (e.g., 2^3 → Math.pow(2,3))
+    parsed = parsed.replace(/(\d+\.?\d*|\)|Math\.\w+|\w+)\s*\^\s*([0-9(\\.]+)/g, 'Math.pow($1,$2)');
+    
+    // STEP 6: Safely evaluate the JavaScript expression
+    try {
+      let result = eval(parsed);
+      return (typeof result === 'number' && isFinite(result)) ? result : 'Error';
+    } catch (e) {
+      return 'Error';
+    }
+  }
+
+  // ==============================================
+  // BUTTON PRESS HANDLER
+  // ==============================================
+  function handleButtonPress(action, btnRawText) {
+    switch (action) {
+      case 'clear':
+        currentInput = '';
+        lastResult = 0;
+        refreshDisplay();
+        break;
+        
+      case 'backspace':
+        currentInput = currentInput.slice(0, -1);
+        refreshDisplay();
+        break;
+        
+      case 'equals':
+        if (currentInput.trim() === '') {
+          lastResult = 0;
+        } else {
+          lastResult = evaluateExpression(currentInput);
+        }
+        refreshDisplay();
+        break;
+      
+      case 'sin': case 'cos': case 'tan': 
+      case 'asin': case 'acos': case 'atan':
+      case 'log': case 'ln': case 'sqrt': case 'exp':
+        let symbol = action;
+        if (action === 'asin') symbol = 'sin⁻¹';
+        else if (action === 'acos') symbol = 'cos⁻¹';
+        else if (action === 'atan') symbol = 'tan⁻¹';
+        else if (action === 'sqrt') symbol = '√';
+        
+        if (action === 'exp') {
+          currentInput += 'e^(';
+        } else {
+          currentInput += symbol + '(';
+        }
+        refreshDisplay();
+        break;
+      
+      case 'pow':
+        currentInput += '^';
+        refreshDisplay();
+        break;
+        
+      case 'factorial':
+        currentInput += '!';
+        refreshDisplay();
+        break;
+      
+      case 'pi':
+        currentInput += 'π';
+        refreshDisplay();
+        break;
+        
+      case 'e':
+        currentInput += 'e';
+        refreshDisplay();
+        break;
+      
+      case '(':
+      case ')':
+        currentInput += action;
+        refreshDisplay();
+        break;
+        
+      case '/':
+        currentInput += '/';
+        refreshDisplay();
+        break;
+        
+      case '*':
+        currentInput += '×';
+        refreshDisplay();
+        break;
+        
+      case '-':
+      case '+':
+        currentInput += action;
+        refreshDisplay();
+        break;
+        
+      case '.':
+        currentInput += '.';
+        refreshDisplay();
+        break;
+        
+      default:
+        if (/^[0-9]$/.test(action)) {
+          currentInput += action;
+          refreshDisplay();
+        }
+        break;
+    }
+  }
+
+  // ==============================================
+  // BUTTON EVENT LISTENERS
+  // ==============================================
+  const buttons = document.querySelectorAll('.btn');
+  
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      const action = btn.dataset.action;
+      const textContent = btn.innerText.trim();
+      
+      if (action) {
+        handleButtonPress(action, textContent);
+      } else {
+        if (textContent.match(/^[0-9]$|\./)) {
+          handleButtonPress(textContent, textContent);
+        } else if (textContent === '×') {
+          handleButtonPress('*', textContent);
+        } else if (textContent === '/' || textContent === '÷') {
+          handleButtonPress('/', textContent);
+        } else if (textContent === '-') {
+          handleButtonPress('-', textContent);
+        } else if (textContent === '+') {
+          handleButtonPress('+', textContent);
+        } else if (textContent === 'π') {
+          handleButtonPress('pi', textContent);
+        } else if (textContent === 'e') {
+          handleButtonPress('e', textContent);
+        } else if (textContent === '⌫') {
+          handleButtonPress('backspace', textContent);
+        } else if (textContent === 'C') {
+          handleButtonPress('clear', textContent);
+        } else if (textContent === '=') {
+          handleButtonPress('equals', textContent);
+        } else if (textContent.includes('!')) {
+          handleButtonPress('factorial', textContent);
+        } else if (textContent.includes('(') || textContent.includes(')')) {
+          handleButtonPress(textContent === '(' ? '(' : ')', textContent);
+        } else {
+          if (textContent.includes('sin⁻¹')) handleButtonPress('asin', textContent);
+          else if (textContent.includes('cos⁻¹')) handleButtonPress('acos', textContent);
+          else if (textContent.includes('tan⁻¹')) handleButtonPress('atan', textContent);
+          else if (textContent.includes('sin')) handleButtonPress('sin', textContent);
+          else if (textContent.includes('cos')) handleButtonPress('cos', textContent);
+          else if (textContent.includes('tan')) handleButtonPress('tan', textContent);
+          else if (textContent.includes('log')) handleButtonPress('log', textContent);
+          else if (textContent.includes('ln')) handleButtonPress('ln', textContent);
+          else if (textContent.includes('√')) handleButtonPress('sqrt', textContent);
+          else if (textContent.includes('exp')) handleButtonPress('exp', textContent);
+        }
+      }
+    });
+  });
+
+  // ==============================================
+  // KEYBOARD SUPPORT
+  // ==============================================
+  window.addEventListener('keydown', (e) => {
+    const key = e.key;
+    
+    if (/^[0-9]$/.test(key)) handleButtonPress(key, key);
+    else if (key === '.') handleButtonPress('.', '.');
+    else if (key === '+') handleButtonPress('+', '+');
+    else if (key === '-') handleButtonPress('-', '-');
+    else if (key === '*') handleButtonPress('*', '×');
+    else if (key === '/') {
+      e.preventDefault();
+      handleButtonPress('/', '/');
+    }
+    else if (key === '(') handleButtonPress('(', '(');
+    else if (key === ')') handleButtonPress(')', ')');
+    else if (key === '^') handleButtonPress('pow', '^');
+    else if (key === '!') handleButtonPress('factorial', '!');
+    else if (key.toLowerCase() === 'p') handleButtonPress('pi', 'π');
+    else if (key === 'E' || key === 'e') {
+      if (!e.ctrlKey && !e.metaKey) handleButtonPress('e', 'e');
+    }
+    else if (key === 'Backspace') {
+      e.preventDefault();
+      handleButtonPress('backspace', '⌫');
+    }
+    else if (key === 'Escape' || key === 'Delete') handleButtonPress('clear', 'C');
+    else if (key === 'Enter' || key === '=') {
+      e.preventDefault();
+      handleButtonPress('equals', '=');
+    }
+  });
+
+  // ==============================================
+  // INITIALIZATION
+  // ==============================================
+  refreshDisplay();
+  
+})();
+  </script>
+</body>
+</html>
